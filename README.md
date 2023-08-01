@@ -7,5 +7,6 @@ Currently following two sets of buckets are supported:
 
 US Securities from Yahoo Finance (yahoo_finance directory)
 US Gov't Trift Savings Plan -- aka TSP (TSP directory)
+Updated YAhoo JSON module for Finance::Quote to fetch cookies and crumb (FinanceQuote directory)
 
 ```
