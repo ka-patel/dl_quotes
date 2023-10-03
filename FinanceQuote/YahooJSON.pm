@@ -37,12 +37,18 @@ use HTTP::CookieJar::LWP;
 use HTML::Form;
 use URI;
 use URI::QueryParam;
-use Data::Dumper;
+
+use threads;
+use Thread::Queue;
 
 # VERSION
 
+my $can_use_threads = eval 'use threads; 1';
+### [<now>] can_use_threads : $can_use_threads 
+
 my $YIND_URL_HEAD = 'https://query2.finance.yahoo.com/v11/finance/quoteSummary/?symbol=';
 my $YIND_URL_TAIL = '&modules=price,summaryDetail,defaultKeyStatistics';
+my $browser = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36';
 
 sub methods {
     return ( yahoo_json => \&yahoo_json,
@@ -72,7 +78,7 @@ sub yahoo_json {
     my $cookie_jar = HTTP::CookieJar::LWP->new;
     my $browser = LWP::UserAgent->new(
         cookie_jar        => $cookie_jar,
-        agent             => "Mozilla/5.0",
+        agent             => $browser,
         );
 
     my $res = $browser->request($req);
@@ -110,19 +116,58 @@ sub yahoo_json {
 
     $ua->cookie_jar( $cookie_jar );
 
-    foreach my $stocks (@stocks) {
+    my $result_q = Thread::Queue->new;
+    my $lock_var : shared;
 
-        # Issue 202 - Fix symbols with Ampersand
-        # Can also be written as
-				# $amp_stocks = $stocks =~ s/&/%26/gr;
-        ($amp_stocks = $stocks) =~ s/&/%26/g;
+    if ($can_use_threads) {
 
-        $url   = $YIND_URL_HEAD . $amp_stocks . $YIND_URL_TAIL;
-        my $uri   = URI->new($url);
-        $uri->query_param_append('crumb', $crumb);
+        my @threads = map {
+            threads->create(
+                sub {
+                    my $stocks = shift;
 
-        $req->uri($uri);
-        $reply = $ua->request($req);
+                    ($amp_stocks = $stocks) =~ s/&/%26/g;
+                    $url = $YIND_URL_HEAD . $amp_stocks . $YIND_URL_TAIL;
+
+                    ### [<now>:THREAD]    url : $url 
+                    my $result = $ua->request( GET $url );
+                    ### [<now>:THREAD] result : $result
+
+                    lock ( $lock_var );
+                    $result_q->enqueue( $stocks );
+                    $result_q->enqueue( $result );
+                }, 
+            $_)
+        } @stocks;
+
+        $_->join() for @threads;
+
+        $result_q->end;
+        
+    } else {
+
+        foreach my $stocks (@stocks) {       ### Evaluating |===[%]    |
+            # Issue 202 - Fix symbols with Ampersand
+            # Can also be written as
+            # $amp_stocks = $stocks =~ s/&/%26/gr;
+            ($amp_stocks = $stocks) =~ s/&/%26/g;
+            $url = $YIND_URL_HEAD . $amp_stocks . $YIND_URL_TAIL;
+
+            ### [<now>]    url : $url 
+            my $result = $ua->request( GET $url );
+            ### [<now>] result : $result
+
+            $result_q->enqueue( $stocks );
+            $result_q->enqueue( $result );
+            }
+
+        $result_q->end;
+
+    }
+
+    while (defined (my $stocks = $result_q->dequeue())) {        ### Evaluating |===[%]    |
+    
+        my $reply   = $result_q->dequeue;
 
         my $code    = $reply->code;
         my $desc    = HTTP::Status::status_message($code);
