@@ -40,7 +40,6 @@ use URI::QueryParam;
 
 use threads;
 use Thread::Queue;
-use Data::Dumper;
 
 # VERSION
 
