@@ -1,5 +1,5 @@
 ```
-#-## This is a replacement yahooJSON module for Finance::Quote which also adds the cookie and the crumb that may be required. This is retained for historical reason and currently it is not needed, thus use the one provided as part of the oficial release. This version is modified based on version 1.57_02 of the release.
+#-## This is a replacement yahooJSON module for Finance::Quote which also adds the cookie and the crumb that may be required. This is retained for historical reason and currently it is not needed, thus use the one provided as part of the oficial release. This version is modified based on version 1.59 of the release.
 
 
 Install steps (for Windows 11 using Strawberry perl):
