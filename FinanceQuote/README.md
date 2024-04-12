@@ -10,4 +10,6 @@ Install steps (for Windows 11 using Strawberry perl):
    #perl -MCPAN -e shell
    cpan> install Finance::Quote
 
+3) Overwrite YahooJSON.pm found in .../perl/site/lib/Finance/Quote directory (did you make back-up of the original?).
+
 ```
