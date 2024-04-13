@@ -10,7 +10,13 @@ Install steps (for Windows 11 using Strawberry perl):
 2) Install Finance::Quote module using following method:
    #perl -MCPAN -e shell
    cpan> install Finance::Quote
+   cpan> exit
 
-3) Overwrite YahooJSON.pm found in .../perl/site/lib/Finance/Quote directory (did you make back-up of the original?).
+3) Install HTTP::CookieJar::LWP module using following method which is needed to deal with cookies and crumb:
+   #perl -MCPAN -e shell
+   cpan> install HTTP::CookieJar::LWP
+   cpan> exit
+
+4) Overwrite YahooJSON.pm found in .../perl/site/lib/Finance/Quote directory (did you make back-up of the original?).
 
 ```
