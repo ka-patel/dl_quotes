@@ -28,23 +28,12 @@ require 5.005;
 use strict;
 use JSON qw( decode_json );
 use vars qw($VERSION $YIND_URL_HEAD $YIND_URL_TAIL);
-use LWP::UserAgent;
 use HTTP::Request::Common;
-use HTML::TableExtract;
 use Time::Piece;
 
 use HTTP::CookieJar::LWP;
-use HTML::Form;
-use URI;
-use URI::QueryParam;
-
-use threads;
-use Thread::Queue;
 
 # VERSION
-
-my $can_use_threads = eval 'use threads; 1';
-### [<now>] can_use_threads : $can_use_threads 
 
 my $YIND_URL_HEAD = 'https://query2.finance.yahoo.com/v11/finance/quoteSummary/?symbols=';
 my $YIND_URL_TAIL = '&modules=price,summaryDetail,defaultKeyStatistics';
@@ -68,91 +57,40 @@ sub yahoo_json {
 
     my $quoter = shift;
     my @stocks = @_;
-    my ( %info, $reply, $url, $te, $ts, $row, @cells, $ce );
+    my ( %info, $reply, $url);
     my ( $my_date, $amp_stocks );
-    my ( $crumb );
     my $ua = $quoter->user_agent();
 
-    my $cookie_jar = HTTP::CookieJar::LWP->new;
-    my $browser = LWP::UserAgent->new(
-        cookie_jar        => $cookie_jar,
-        agent             => $browser,
-        );
+    my $cookie_jar = HTTP::CookieJar::LWP->new();
 
-    # get Yahoo cookies that are needed for crumb
-    my $req = HTTP::Request->new(GET => 'https://login.yahoo.com');
-    my $res = $browser->request($req);
-
-    # get the crumb that corrosponds to cookies retrieved previously
-    $req->uri('https://query2.finance.yahoo.com/v1/test/getcrumb');
-    my $res = $browser->request($req);
+    $ua->cookie_jar($cookie_jar);
+    $ua->agent($browser);
     
-    $crumb = $res->content;
+    # get Yahoo cookies that are needed for crumb
+    $reply = $ua->request(GET 'https://login.yahoo.com');
+
+    # get the crumb that corrosponds to cookies retrieved
+    $reply = $ua->request(GET 'https://query2.finance.yahoo.com/v1/test/getcrumb');
+    my $crumb = $reply->content;
 
     ### [<now>]    cookie_jar : $cookie_jar 
     ### [<now>]         crumb : $crumb 
 
-    $ua->cookie_jar( $cookie_jar );
+    foreach my $stocks (@stocks) {
 
-    my $result_q = Thread::Queue->new;
-    my $lock_var : shared;
+        # Issue 202 - Fix symbols with Ampersand
+        # Can also be written as
+				# $amp_stocks = $stocks =~ s/&/%26/gr;
+        ($amp_stocks = $stocks) =~ s/&/%26/g;
 
-    if ($can_use_threads) {
-
-        my @threads = map {
-            threads->create(
-                sub {
-                    my $stocks = shift;
-
-                    ($amp_stocks = $stocks) =~ s/&/%26/g;
-                    $url = $YIND_URL_HEAD . $amp_stocks . '&crumb=' . $crumb . $YIND_URL_TAIL;
-
-                    ### [<now>:THREAD]    url : $url 
-                    my $result = $ua->request( GET $url );
-                    ### [<now>:THREAD] result : $result
-
-                    lock ( $lock_var );
-                    $result_q->enqueue( $stocks );
-                    $result_q->enqueue( $result );
-                }, 
-            $_)
-        } @stocks;
-
-        $_->join() for @threads;
-
-        $result_q->end;
-        
-    } else {
-
-        foreach my $stocks (@stocks) {       ### Evaluating |===[%]    |
-            # Issue 202 - Fix symbols with Ampersand
-            # Can also be written as
-            # $amp_stocks = $stocks =~ s/&/%26/gr;
-            ($amp_stocks = $stocks) =~ s/&/%26/g;
-            $url = $YIND_URL_HEAD . $amp_stocks . '&crumb=' . $crumb . $YIND_URL_TAIL;
-
-            ### [<now>]    url : $url 
-            my $result = $ua->request( GET $url );
-            ### [<now>] result : $result
-
-            $result_q->enqueue( $stocks );
-            $result_q->enqueue( $result );
-            }
-
-        $result_q->end;
-
-    }
-
-    while (defined (my $stocks = $result_q->dequeue())) {        ### Evaluating |===[%]    |
-    
-        my $reply   = $result_q->dequeue;
+        $url   = $YIND_URL_HEAD . $amp_stocks . '&crumb=' . $crumb . $YIND_URL_TAIL;
+        $reply = $ua->request( GET $url);
 
         my $code    = $reply->code;
+        my $desc    = HTTP::Status::status_message($code);
         my $headers = $reply->headers_as_string;
         my $body    = $reply->content;
 
-        my $desc    = HTTP::Status::status_message($code);
-        
         #Response variables available:
         #Response code: 	$code
         #Response description: 	$desc
@@ -176,7 +114,8 @@ sub yahoo_json {
                 $info{ $stocks, "errormsg" } =
                     "Error retrieving quote for $stocks - no listing for this name found. Please check symbol and the two letter extension (if any)";
 
-            } else {
+            }
+            else {
 
                 my $json_resources_price = $json_data->{'quoteSummary'}{'result'}[0]{'price'};
                 my $json_resources_summaryDetail = $json_data->{'quoteSummary'}{'result'}[0]{'summaryDetail'};
@@ -237,9 +176,9 @@ sub yahoo_json {
                     $info{ $stocks, "currency"} = "ILS";
                 }
 
-                # Add extra fields using names as per yahoo to make it easier
-                #  to switch from yahoo to yahooJSON
-                # Code added by goodvibes
+            # Add extra fields using names as per yahoo to make it easier
+            #  to switch from yahoo to yahooJSON
+            # Code added by goodvibes
                 {
                   # turn off warnings in this block to fix bogus
                   # 'Use of uninitialized value in multiplication' warning
@@ -250,7 +189,7 @@ sub yahoo_json {
                 }
                 $info{ $stocks, "eps"} =
                     $json_resources_defaultKeyStatistics->{'trailingEps'}{'raw'};
-	        	# $json_resources_summaryDetail->{'epsTrailingTwelveMonths'};
+		        #    $json_resources_summaryDetail->{'epsTrailingTwelveMonths'};
                 $info{ $stocks, "pe"} = $json_resources_summaryDetail->{'trailingPE'}{'raw'};
                 $info{ $stocks, "year_range"} =
                     sprintf("%12s - %s",
@@ -274,7 +213,10 @@ sub yahoo_json {
                                      { eurodate => $my_date } );
 
             }
-        } else { #HTTP request fail
+        }
+
+        #HTTP request fail
+        else {
             $info{ $stocks, "success" } = 0;
             $info{ $stocks, "errormsg" } =
                 "Error retrieving quote for $stocks. Attempt to fetch the URL $url resulted in HTTP response $code ($desc)";
