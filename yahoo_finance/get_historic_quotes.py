@@ -5,6 +5,8 @@
 #-##
 #-## Required modules:
 #-##     requests
+#-##     sys
+#-##     datetime
 #-##     lxml
 #-##     yahoo_fin
 #-##
@@ -115,7 +117,7 @@ for ticker in tickers :
 				qif_quote_line = '!Type:Prices' + "\n" + '"' + security + '",' + closing_price + ',"' + date + '"' + "\n" + '^'
 
 				print(gnc_quote_line)
-				if closing_price != "nan": 
+				if closing_price != "nan" :
 				    quicken_csv_file.write(csv_quote_line + "\n")
 				    gnucash_csv_file.write(gnc_quote_line + "\n")
 				    qif_file.write(qif_quote_line + "\n")
