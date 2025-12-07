@@ -50,6 +50,7 @@ err_file = open(path_to_file + 'quotes_error.csv', 'w')
 
 userAgent = {'user-agent' : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36 Edg/91.0.864.59'}
 userAgent = {'user-agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0'}
+userAgent = {'user-agent' : 'Mozilla/5.0'}
 
 for ticker in tickers :
 	
@@ -62,7 +63,7 @@ for ticker in tickers :
 
 	try:
 		# print(si.get_quote_table(ticker.replace ("INDEX:", '^'), dict_result = True))
-		records = si.get_data(actual_ticker, start_date = window_start, end_date = window_end, index_as_date = False, interval = "1d")
+		records = si.get_data(actual_ticker, start_date = window_start, end_date = window_end, index_as_date = False, interval = "1d", headers = userAgent)
 	except:
 		err_file.write(ticker + "\n")
 	else:
