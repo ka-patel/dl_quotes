@@ -1,6 +1,8 @@
 ```
 # dl_quotes
 
+NOTE: This script does not work anymore. Module yahoo_fin is broken.
+
 #-## Script to download historical quotes from Yahoo Finance
 
 Install steps (for Windows 11):
