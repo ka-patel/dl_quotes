@@ -3,6 +3,9 @@
 #-##
 #-## Script to download historical quotes from Yahoo Finance
 #-##
+#-## History:
+#-##   20251207 - Single ticker is send as a Python array of one when passing it to yfinance module.
+#-##
 #-## Required modules:
 #-##     yfinance
 #-##     pandas
@@ -54,10 +57,12 @@ for symbol in tickers :
 
 	try:
 		data = yf.Ticker(ticker)
-		download = yf.download(ticker, progress=False, interval="1d", start=window_start, group_by="ticker")
+		quotes = yf.download(ticker, progress=False, interval="1d", start=window_start, group_by="ticker", auto_adjust=True)
 	except:
 		err_file.write(ticker + "\n")
 	else:
+
+		download=quotes[ticker]
 		exchange = data.info["exchange"]
 		currency = data.info["currency"]
 		closings=download["Close"]
