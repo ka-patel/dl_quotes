@@ -11,6 +11,7 @@
 #-##     pandas
 #-##     datetime
 #-##     sys
+#-##     os
 #-##
 #-## Author: Kalpesh Patel (kalpesh <dot> patel <at> usa <dot> net)
 #-##
@@ -19,11 +20,16 @@
 import pandas
 import yfinance as yf
 import sys
+import os
 import datetime
 
-path_to_file = '.\\'
-days_of_quotes = 30
+if os.getenv('DEBUG'):
+	yf.enable_debug_mode()
 
+path_to_file = '.\\'
+
+days_of_quotes = 30
+interval = "1d"
 tickers = [
 "ABNIX",
 "IDCC",
@@ -31,10 +37,16 @@ tickers = [
 "INDEX:XAX",
 ]
 
+if len(sys.argv) > 3 :
+	# Valid intervals are: 1m,2m,5m,15m,30m,60m,90m,1h,1d,5d,1wk,1mo,3mo
+	for i in ["1d" , "5d" , "1wk" , "1mo" , "3mo"]:
+		if i in sys.argv[3]:
+			interval = i
+
 if len(sys.argv) > 2 :
-	updated_days_of_quotes = int(sys.argv[2])
-	if updated_days_of_quotes > 0 :
-		days_of_quotes = updated_days_of_quotes
+	quotes_length = int(sys.argv[2])
+	if quotes_length > 0 :
+		days_of_quotes = quotes_length
 
 if len(sys.argv) > 1 :
 	with open (sys.argv[1]) as file :
@@ -57,7 +69,7 @@ for symbol in tickers :
 
 	try:
 		data = yf.Ticker(ticker)
-		quotes = yf.download(ticker, progress=False, interval="1d", start=window_start, group_by="ticker", auto_adjust=True)
+		quotes = yf.download(ticker, progress=False, interval=interval, start=window_start, group_by="ticker", auto_adjust=True)
 	except:
 		err_file.write(ticker + "\n")
 	else:

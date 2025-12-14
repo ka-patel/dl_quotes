@@ -6,6 +6,7 @@
 #-## Required modules:
 #-##     requests
 #-##     sys
+#-##     os
 #-##     datetime
 #-##     lxml
 #-##     yahoo_fin
@@ -18,19 +19,27 @@ from lxml import html
 import datetime
 import requests
 import sys
+import os
 
 # import stock_info module from yahoo_fin
 from yahoo_fin import stock_info as si
 
 path_to_file = '.\\'
-days_of_quotes = 30
 
+days_of_quotes = 30
+interval = "1d"
 tickers = [
 "ABNIX",
 "IDCC",
 "BK",
 "INDEX:XAX",
 ]
+
+if len(sys.argv) > 3 :
+	# Valid intervals are: 1m,2m,5m,15m,30m,60m,90m,1h,1d,5d,1wk,1mo,3mo
+	for i in ["1d" , "5d" , "1wk" , "1mo" , "3mo"]:
+		if i in sys.argv[3]:
+			interval = i
 
 if len(sys.argv) > 2 :
 	updated_days_of_quotes = int(sys.argv[2])
@@ -63,14 +72,14 @@ for ticker in tickers :
 
 	try:
 		# print(si.get_quote_table(ticker.replace ("INDEX:", '^'), dict_result = True))
-		records = si.get_data(actual_ticker, start_date = window_start, end_date = window_end, index_as_date = False, interval = "1d", headers = userAgent)
+		records = si.get_data(actual_ticker, start_date = window_start, end_date = window_end, index_as_date = False, interval = interval, headers = userAgent)
 	except:
 		err_file.write(ticker + "\n")
 	else:
 		if records.size > 0 :
 			try:
-			    url = "http://d.yimg.com/autoc.finance.yahoo.com/autoc?query={}&region=1&lang=en".format(actual_ticker)
-			    result = requests.get(url).json()
+				url = "http://d.yimg.com/autoc.finance.yahoo.com/autoc?query={}&region=1&lang=en".format(actual_ticker)
+				result = requests.get(url).json()
 			except:
 				pass
 			else:
@@ -119,9 +128,9 @@ for ticker in tickers :
 
 				print(gnc_quote_line)
 				if closing_price != "nan" :
-				    quicken_csv_file.write(csv_quote_line + "\n")
-				    gnucash_csv_file.write(gnc_quote_line + "\n")
-				    qif_file.write(qif_quote_line + "\n")
+					quicken_csv_file.write(csv_quote_line + "\n")
+					gnucash_csv_file.write(gnc_quote_line + "\n")
+					qif_file.write(qif_quote_line + "\n")
 
 # print(records)
 # print(records[["ticker","close","date"]])

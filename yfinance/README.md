@@ -13,7 +13,7 @@ Install steps (for Windows 11) as of 12/07/2025:
 
 2) Requires requests_html, datetime, lxml, lxml_html_clean, pandas and yfinance Python modules. 
     Run following command to install these needed modules from within Python manager:
-        py -V:3.14 -m pip install requests_html datetime lxml lxml_html_clean pandas yfinance
+        py -V:3.14 -m pip install requests requests_html datetime lxml lxml_html_clean pandas yfinance
 
 3) Create a text file with list of tickers for which to retrieve quotes for. Format of the text file is one 
    ticker per line. While each blank line is ignored, any non-blank line is assumed to be a ticker symbol. An
@@ -24,13 +24,25 @@ Install steps (for Windows 11) as of 12/07/2025:
         echo INDEX:XAX >> my_tickers.example
 
 4) Format of invocation is as follows with optional fixed positional parameters:
-    py -V:3.14 get_historic_quotes.py <file_with_tickers> <number_of_days_to_retrieve>
+    py -V:3.14 get_historic_quotes.py <file_with_tickers> <number_of_days_to_retrieve> <interval>
     Example (to retrieve today's prices):
-        py -V:3.14 get_historic_quotes.py my_tickers 1
+        py -V:3.14 get_historic_quotes.py my_tickers 1 1d
 
     Of course if you don't specify parameters then the script uses few hard coded tickers and retrieves 30 days
-    of historical data for each ticker. The script has been tested with and works for equity, mutual funds and
-    indexes.
+    of end of day historical data for each ticker. The script has been tested with and works for equity, mutual
+    funds and indexes. Likely is to work for currency exchange but untested at this time.
+
+    <file_with_tickers> is a file name that can be specified with either relative or full path prepended that 
+    contains list of tickers as specified in Step 3.
+
+    <number_of_days_to_retrieve> is any positive greater than zero which sets a window from today to number of
+    days back specified in this parameter. This value is calculated to provide start and end period of quotes to
+    get.
+
+    <interval> is optional and by default is set to one day ("1d") if not provided. Valid interval for type of
+    quotes to get are one day ("1d"), five days ("5d"), one week ("1w"), one month ("1mo") and three month 
+    ("3mo"). This parameter is directly passed to yfinance API.
+
 
 
 The execution will produce four files:
