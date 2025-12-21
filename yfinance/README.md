@@ -44,6 +44,11 @@ Install steps (for Windows 11) as of 12/07/2025:
     ("3mo"). This parameter is directly passed to yfinance API.
 
 
+Install steps (for *NIX):
+
+    To run on *NIX, skip step 1) and substitute 'python' in place of 'py -V:3.14' in all steps mentioned above 
+    for Windows 11.
+
 
 The execution will produce four files:
  - gnucash_quotes.csv

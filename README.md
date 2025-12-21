@@ -12,9 +12,9 @@ Currently following three sets of buckets are available:
  - US Securities from Yahoo Finance (yahoo_fin or yfinance directory)
     Note that these variation are because each uses different built-in Python 
     modules but they function identically.
- - US Gov't Trift Savings Plan -- aka TSP (TSP directory)
+ - US Gov't Thrift Savings Plan -- aka TSP (TSP directory)
 
-This repo also contains FinanceQuote directory which has dditional unofficial 
+This repo also contains FinanceQuote directory which has additional unofficial 
 Finance::Quote modules that are developed by me. It includes YahooChart
 module which fetches cookies and crumb to future proof it, and multi-threading 
 if installed Perl is capable of. You simply would overlay these files into
