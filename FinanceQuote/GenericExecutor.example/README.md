@@ -16,14 +16,14 @@ path that includes the runnable as part of that path.
 
 If F::Q is properly set up then running enclosed perl script will retrieve 
 data for Apple and confirm that all is working correctly:
-
+```
     perl GenericExecutor_example.pl AAPL
-
+```
 With that something like below on stdout should be seen:
-
-$VAR1 = 'AAPLforwardPE';
-$VAR2 = '29.629297';
-$VAR3 = 'AAPLregion';
-$VAR4 = 'US';
+```
+$VAR1 = 'AAPLforwardPE';\
+$VAR2 = '29.629297';\
+$VAR3 = 'AAPLregion';\
+$VAR4 = 'US';\
 ...
-
+```
