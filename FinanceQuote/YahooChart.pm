@@ -176,6 +176,7 @@ use threads;
 use Thread::Queue;
 use HTTP::Cookies;
 use URI::Escape;
+use File::HomeDir;
 
 # VERSION
 
@@ -192,7 +193,7 @@ my $YIND_URL_TAIL = '?interval=1d&period1=' . $startepoc . '&period2=' . $endepo
 
 my $result_q = Thread::Queue->new;
 my $lock_var : shared;
-my $HOME = '.' || $ENV{HOME};
+my $HOME = File::HomeDir->my_home;
 
 my $file = $HOME . '/yahoo_cookies_and_crumb.dat';
 
@@ -311,12 +312,12 @@ sub yahoo_chart {
             return wantarray() ? %info : \%info;
         }
 
-        # get the crumb that corrosponds to cookies retrieved
+        # get the crumb that corresponds to cookies retrieved
         $reply = $ua->request(GET 'https://query2.finance.yahoo.com/v1/test/getcrumb');
         if ($reply->code != 200) {
             foreach my $symbol (@stocks) {
                 $info{$symbol, "success"} = 0;
-                $info{$symbol, "errormsg"} = "Error accessing queary.finance.yahoo.com/v1/test/getcrumb: $@";
+                $info{$symbol, "errormsg"} = "Error accessing https://query2.finance.yahoo.com/v1/test/getcrumb: $@";
             }     
             return wantarray() ? %info : \%info;
         }
@@ -331,7 +332,7 @@ sub yahoo_chart {
     }
 
     ### [<now>]    cookie_jar : $cookie_jar
-   
+
     my $YIND_CRUMB = '&crumb=' . $crumb;
 
     if ($can_use_threads) {
@@ -529,7 +530,7 @@ sub yahoo_chart {
                 #
                 # Convert GBp or GBX to GBP (divide price by 100).
 
-                if ( ($info{$stocks,"currency"} eq "GBp") ||
+                if (($info{$stocks,"currency"} eq "GBp") ||
                      ($info{$stocks,"currency"} eq "GBX")) {
                     for my $price (qw/open high low close last nav price adjclose regularMarketPrice chartPreviousClose/) {
                         if (defined ($info{$stocks, $price})) {
