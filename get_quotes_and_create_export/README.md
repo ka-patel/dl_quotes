@@ -39,21 +39,20 @@ Invoke it as:
 If ran with just data file name, it will display all duplicate tickers. Output 
 example:
 
-C:\Users\ka-patel\git\dl_quotes\display_namespace_for_ticker>python display_namespaces.py c:\data\gnucash\info2000.gnucash
+C:\Users\kalpesh\git\dl_quotes\get_quotes_and_create_export>python get_quotes_for_tickers.py c:\data\gnucash\info2000.gnucash
+C:NONCURRENCY,TSP
+NANC:CBOE,CBOE - US
+QMMLQ:MONEY MARKET,NONCURRENCY
+VBTLX:FUND,NONCURRENCY
+VEMAX:FUND,NONCURRENCY
+VEUSX:FUND,NONCURRENCY
+VOO:NONCURRENCY,NYSEARCA
+VTI:NONCURRENCY,NYSEARCA
+VTIAX:FUND,NONCURRENCY
+VXF:FUND,NONCURRENCY
+^RUT:CHICAGOOPTIONS,NASDAQ
 
-C:NONCURRENCY, TSP
-NANC:CBOE, CBOE - US
-QMMLQ:MONEY MARKET, NONCURRENCY
-VBTLX:FUND, NONCURRENCY
-VEMAX:FUND, NONCURRENCY
-VEUSX:FUND, NONCURRENCY
-VOO:NONCURRENCY, NYSEARCA
-VTI:NONCURRENCY, NYSEARCA
-VTIAX:FUND, NONCURRENCY
-VXF:FUND, NONCURRENCY
-^RUT:CHICAGOOPTIONS, NASDAQ
-
-C:\Users\ka-patel\git\dl_quotes\display_namespace_for_ticker>
+C:\Users\kalpesh\git\dl_quotes\get_quotes_and_create_export>
 
 One note:
 yfinance can take multiple tickers at the same time but script iterate one at a time
