@@ -2,12 +2,12 @@
 # get_quotes_and_create_export
 
 #-## This folder contains Python script that kind of combines Python script located
-in display_namespace_for_ticker folder and at the same time pass an optional argument
+in display_namespace_for_ticker folder, at the same time pass an optional argument
 to download quotes and generate prices file named "prices.csv" that can be imported 
-into GNUCash. This is mostly likely for folks that are unable to install supplemental 
-Perl Finance::Quote module for GNUCash on their system for one reason or another. 
-Unlike Finance::Quote module, this one sources quotes only from Yahoo Finance 
-(yfinance) Python library. See https://pypi.org/project/yfinance/ for more details. 
+into GNUCash. This is most likely use for folks that are unable to install supplemental 
+Perl Finance::Quote framework for GNUCash on their system for one reason or another. 
+Unlike Finance::Quote, this one sources quotes only from Yahoo Finance (yfinance)
+Python library. See https://pypi.org/project/yfinance/ for more details. 
 
 It can display either duplicates only, or all if second parameter is specified. Each 
 ticker will be shown with its namespace(s) separated with colon, and namespaces 
