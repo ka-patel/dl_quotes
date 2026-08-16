@@ -1,11 +1,13 @@
 # --- Start of script ---
 
 from lxml import etree
-import logging
 import gzip
 import sys
 
 import yfinance as yf
+
+yf.config.debug.hide_exceptions = True
+yf.config.debug.logging = False
 
 onlyMultiple = True
 createQuotes = False
@@ -29,10 +31,6 @@ else:
     exit()
 
 namespaces = dict()
-
-logger = logging.getLogger("yfinance")
-logger.disabled = True
-logger.propagate = False
 
 try:
     with gzip.open(data_file, "rb") as f:
