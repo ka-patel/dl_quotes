@@ -9,6 +9,6 @@ namespace(s) separated with colon, and namespaces separated by commas.
 
 Python v3.x with lxml, gzip and sys libraries will be needed. Invoke it as:
 
-  python display_namespaces.py [all]
+  python display_namespaces.py <data_file_name> [all]
 
 ```
