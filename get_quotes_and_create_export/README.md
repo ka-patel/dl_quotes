@@ -30,7 +30,7 @@ prices.csv file look like this:
 with column of namespace, symbol, date, price, and currency, that are comma 
 separated respectively.
 
-Python v3.x with yfinance, logging, lxml, gzip and sys libraries will be needed. 
+Python v3.x with yfinance, lxml, gzip and sys libraries will be needed. 
 
 Invoke it as:
 
